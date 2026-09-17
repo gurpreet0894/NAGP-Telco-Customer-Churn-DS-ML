@@ -12,9 +12,9 @@ REST API.
 ### Repository
 - GitHub Repository: `https://github.com/gurpreet0894/NAGP-Telco-Customer-Churn-DS-ML`
 
-### Technical Documentation
-- please refer Analysis_Documentation.docx file in the root folder for Techinal Documentation
-- [Download Technical Documentation](./Analysis_Documentation.docx)
+### Analysis Documentation
+- please refer Analysis_Documentation.docx file in the root folder for Analysis Documentation
+- [Download Analysis Documentation](./Analysis_Documentation.docx)
 
 ### Video Demonstration
 - [TODO] Video Link to be added
