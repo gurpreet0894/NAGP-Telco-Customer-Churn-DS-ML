@@ -7,6 +7,18 @@ business problem → data preparation → EDA →
 feature engineering → Decision Tree model → evaluation → interpretation → saved model →
 REST API.
 
+##  Project Links
+
+### Repository
+- GitHub Repository: `https://github.com/gurpreet0894/NAGP-Telco-Customer-Churn-DS-ML`
+
+### Technical Documentation
+- please refer Analysis_Documentation.docx file in the root folder for Techinal Documentation
+- [Download Technical Documentation](./Analysis_Documentation.docx)
+
+### Video Demonstration
+- [TODO] Video Link to be added
+
 ## Assumptions
 
 - **Environment:** Python 3.12+ is required (see Setup) — the pinned dependency versions
