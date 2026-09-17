@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Telco Customer Churn Predictor</title>
+<style>
+  :root {
+    --primary: #1f4e79;
+    --border: #d0d7de;
+    --bg: #f6f8fa;
+    --risk: #b3261e;
+    --safe: #1e7a34;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: #1a1a1a;
+    margin: 0;
+    padding: 2rem 1rem 4rem;
+  }
+  .container { max-width: 780px; margin: 0 auto; }
+  h1 { color: var(--primary); font-size: 1.6rem; margin-bottom: 0.25rem; }
+  p.subtitle { color: #555; margin-top: 0; margin-bottom: 1.5rem; }
+  form {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+  fieldset {
+    border: none;
+    border-top: 1px solid var(--border);
+    padding: 1rem 0;
+    margin: 0;
+  }
+  fieldset:first-of-type { border-top: none; padding-top: 0; }
+  legend {
+    font-weight: 600;
+    color: var(--primary);
+    padding: 0 0 0.5rem;
+    margin-left: -2px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem 1.2rem;
+  }
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+    color: #333;
+  }
+  select, input[type="number"] {
+    width: 100%;
+    padding: 0.45rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 0.9rem;
+    background: #fff;
+  }
+  button {
+    margin-top: 1.5rem;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 0.7rem 1.4rem;
+    border-radius: 5px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button:hover { background: #163a5c; }
+  button:disabled { background: #99a; cursor: default; }
+  #result {
+    margin-top: 1.5rem;
+    padding: 1rem 1.2rem;
+    border-radius: 8px;
+    display: none;
+  }
+  #result.risk { background: #fdecea; border: 1px solid var(--risk); display: block; }
+  #result.safe { background: #eaf6ec; border: 1px solid var(--safe); display: block; }
+  #result.error { background: #fff4e5; border: 1px solid #b36b00; display: block; }
+  #result h2 { margin: 0 0 0.3rem; font-size: 1.1rem; }
+  #result.risk h2 { color: var(--risk); }
+  #result.safe h2 { color: var(--safe); }
+  #result.error h2 { color: #b36b00; }
+  #result p { margin: 0.2rem 0; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Telco Customer Churn Predictor</h1>
+  <p class="subtitle">Fill in a customer's attributes and get a churn prediction from the trained Decision Tree model (calls this same server's <code>POST /predict</code> endpoint).</p>
+
+  <form id="churn-form">
+    <fieldset>
+      <legend>Customer profile</legend>
+      <div class="grid">
+        <div>
+          <label for="gender">Gender</label>
+          <select id="gender" name="gender">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+        <div>
+          <label for="SeniorCitizen">Senior citizen</label>
+          <select id="SeniorCitizen" name="SeniorCitizen">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+        </div>
+        <div>
+          <label for="Partner">Has partner</label>
+          <select id="Partner" name="Partner">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+        </div>
+        <div>
+          <label for="Dependents">Has dependents</label>
+          <select id="Dependents" name="Dependents">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Services</legend>
+      <div class="grid">
+        <div>
+          <label for="tenure">Tenure (months)</label>
+          <input type="number" id="tenure" name="tenure" value="2" min="0" step="1" required>
+        </div>
+        <div>
+          <label for="PhoneService">Phone service</label>
+          <select id="PhoneService" name="PhoneService">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div>
+          <label for="MultipleLines">Multiple lines</label>
+          <select id="MultipleLines" name="MultipleLines">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+            <option value="No phone service">No phone service</option>
+          </select>
+        </div>
+        <div>
+          <label for="InternetService">Internet service</label>
+          <select id="InternetService" name="InternetService">
+            <option value="DSL">DSL</option>
+            <option value="Fiber optic">Fiber optic</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div>
+          <label for="OnlineSecurity">Online security</label>
+          <select id="OnlineSecurity" name="OnlineSecurity">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+            <option value="No internet service">No internet service</option>
+          </select>
+        </div>
+        <div>
+          <label for="OnlineBackup">Online backup</label>
+          <select id="OnlineBackup" name="OnlineBackup">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+            <option value="No internet service">No internet service</option>
+          </select>
+        </div>
+        <div>
+          <label for="DeviceProtection">Device protection</label>
+          <select id="DeviceProtection" name="DeviceProtection">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+            <option value="No internet service">No internet service</option>
+          </select>
+        </div>
+        <div>
+          <label for="TechSupport">Tech support</label>
+          <select id="TechSupport" name="TechSupport">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+            <option value="No internet service">No internet service</option>
+          </select>
+        </div>
+        <div>
+          <label for="StreamingTV">Streaming TV</label>
+          <select id="StreamingTV" name="StreamingTV">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+            <option value="No internet service">No internet service</option>
+          </select>
+        </div>
+        <div>
+          <label for="StreamingMovies">Streaming movies</label>
+          <select id="StreamingMovies" name="StreamingMovies">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+            <option value="No internet service">No internet service</option>
+          </select>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Contract & billing</legend>
+      <div class="grid">
+        <div>
+          <label for="Contract">Contract</label>
+          <select id="Contract" name="Contract">
+            <option value="Month-to-month">Month-to-month</option>
+            <option value="One year">One year</option>
+            <option value="Two year">Two year</option>
+          </select>
+        </div>
+        <div>
+          <label for="PaperlessBilling">Paperless billing</label>
+          <select id="PaperlessBilling" name="PaperlessBilling">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div>
+          <label for="PaymentMethod">Payment method</label>
+          <select id="PaymentMethod" name="PaymentMethod">
+            <option value="Electronic check">Electronic check</option>
+            <option value="Mailed check">Mailed check</option>
+            <option value="Bank transfer (automatic)">Bank transfer (automatic)</option>
+            <option value="Credit card (automatic)">Credit card (automatic)</option>
+          </select>
+        </div>
+        <div>
+          <label for="MonthlyCharges">Monthly charges ($)</label>
+          <input type="number" id="MonthlyCharges" name="MonthlyCharges" value="53.85" min="0" step="0.01" required>
+        </div>
+        <div>
+          <label for="TotalCharges">Total charges ($)</label>
+          <input type="number" id="TotalCharges" name="TotalCharges" value="108.15" min="0" step="0.01" required>
+        </div>
+      </div>
+    </fieldset>
+
+    <button type="submit" id="submit-btn">Predict churn</button>
+  </form>
+
+  <div id="result"></div>
+</div>
+
+<script>
+  const form = document.getElementById('churn-form');
+  const resultBox = document.getElementById('result');
+  const submitBtn = document.getElementById('submit-btn');
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Predicting...';
+    resultBox.className = '';
+
+    const formData = new FormData(form);
+    const payload = {};
+    for (const [key, value] of formData.entries()) {
+      payload[key] = value;
+    }
+    // Send numeric fields as numbers rather than strings.
+    ['SeniorCitizen', 'tenure', 'MonthlyCharges', 'TotalCharges'].forEach((key) => {
+      payload[key] = Number(payload[key]);
+    });
+
+    try {
+      const response = await fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        resultBox.className = 'error';
+        resultBox.innerHTML = `<h2>Request error</h2><p>${data.error || 'Something went wrong.'}</p>`;
+      } else {
+        const isChurn = data.prediction === 'Yes';
+        resultBox.className = isChurn ? 'risk' : 'safe';
+        resultBox.innerHTML = `
+          <h2>${isChurn ? 'Likely to churn' : 'Likely to stay'}</h2>
+          <p><strong>Prediction:</strong> ${data.prediction}</p>
+          <p><strong>Churn probability:</strong> ${(data.churn_probability * 100).toFixed(2)}%</p>
+        `;
+      }
+    } catch (err) {
+      resultBox.className = 'error';
+      resultBox.innerHTML = `<h2>Network error</h2><p>Could not reach the server: ${err.message}</p>`;
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Predict churn';
+    }
+  });
+</script>
+</body>
+</html>
